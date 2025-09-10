@@ -124,6 +124,11 @@ dependencies {
   shadowTest library.java.log4j2_api
   shadowTest library.java.jamm
   testRuntimeOnly library.java.slf4j_jdk14
+  testImplementation platform('org.junit:junit-bom:5.10.0')
+  testImplementation 'org.junit.jupiter:junit-jupiter'
+  testImplementation 'com.code-intelligence:jazzer-junit:0.0.0-dev'
+  testImplementation 'org.junit.vintage:junit-vintage-engine'
+  testImplementation project(":runners:direct-java")
 }
 
 project.tasks.compileTestJava {
@@ -136,5 +141,13 @@ project.tasks.compileTestJava {
 // need to run both JUnit 4 and 5 via the JUnit Platform must also add the
 // Vintage engine explicitly.
 test {
-  useJUnit()
+  useJUnitPlatform()
+}
+
+configurations.configureEach {
+  resolutionStrategy.eachDependency { details ->
+    if (details.requested.group == "org.junit.jupiter") {
+      details.useVersion "5.10.0"
+    }
+  }
 }

@@ -21,6 +21,7 @@ import static org.junit.Assert.assertEquals;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
@@ -625,5 +626,23 @@ public class RowCoderTest {
     RowCoder.of(schema1).encode(row, os);
     Row decoded = RowCoder.of(schema2).decode(new ByteArrayInputStream(os.toByteArray()));
     assertEquals(expected, decoded);
+  }
+
+  @Test
+  public void testEncodingInvalidInput() throws IOException {
+    int[] ints = {-1, -1, -1, -1, 14, 0, 0, 86, 0, 0};
+    byte[] data = new byte[ints.length];
+    for (int i = 0; i < ints.length; i++) {
+      data[i] = (byte) ints[i];
+    }
+
+    ByteArrayInputStream in = new ByteArrayInputStream(data);
+    Schema schema =
+        Schema.builder()
+            .addStringField("f_string")
+            .addInt32Field("f_int32")
+            .addBooleanField("f_boolean")
+            .build();
+    RowCoder.of(schema).decode(in);
   }
 }
